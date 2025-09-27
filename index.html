@@ -3,169 +3,479 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MY ESPECIAL CALENDAR — A4 Landscape + Print Button</title>
+<title>MY SPECIAL CALENDAR — A4 Landscape (13 pages)</title>
 <style>
-  /* ——— Paginação e tamanho exatos ——— */
-  @page { size: A4 landscape; margin: 12mm; }
-  html, body { height: 100%; margin: 0; }
-  :root{
-    --ink:#0f172a; --muted:#475569; --hair:#00000020;
-    --brand:#0ea5e9; --brand2:#f59e0b; --brand3:#ef4444; --brand4:#10b981;
-    --paper:#fff; --bg:#f6fbff; --highlight:#dcf3ff; --note:#fde68a;
+  /* ===== RESET & GLOBAL SETTINGS ===== */
+  * { 
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
-  *{ box-sizing:border-box }
-  body{
-    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    color:var(--ink);
-    background:var(--bg);
+  
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f0f4f8;
+    color: #0f172a;
+    margin: 0;
+    padding: 10px;
   }
-
-  /* Barra de ações (fica fora da impressão) */
-  .toolbar{
-    position: sticky; top: 0; z-index: 9999;
-    display:flex; align-items:center; gap:8px;
-    padding:10px 12px; background:#fff; border-bottom:1px solid #e5e7eb;
-    box-shadow:0 2px 8px #0001;
+  
+  /* ===== TOOLBAR (NON-PRINTING) ===== */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 15px;
+    border-radius: 8px;
   }
-  .toolbar .titlebar{ font-weight:800; letter-spacing:.3px; margin-right:auto }
-  .btn{
-    appearance:none; border:none; cursor:pointer; border-radius:999px;
-    padding:10px 14px; font-weight:700; letter-spacing:.2px;
-    background:linear-gradient(90deg,#0284c7,#0ea5e9); color:#fff;
-    box-shadow:0 2px 6px #0002;
+  
+  .toolbar .titlebar {
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 0.3px;
+    margin-right: auto;
+    color: #0f172a;
   }
-  .btn:active{ transform: translateY(1px) }
-  .hint{ font-size:12px; color:var(--muted) }
-
-  /* Cada folha ocupa exatamente 1 página A4 (paisagem) */
-  .sheet{
-    width: 273mm;          /* 297mm - (12mm * 2) */
-    height: 186mm;         /* 210mm - (12mm * 2) */
-    margin: 12px auto;
+  
+  .btn {
+    appearance: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #0369a1, #0ea5e9);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: all 0.2s;
+  }
+  
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  
+  .btn:active {
+    transform: translateY(1px);
+  }
+  
+  .hint {
+    font-size: 13px;
+    color: #64748b;
+  }
+  
+  /* ===== PAGE SETTINGS ===== */
+  .sheet {
+    width: 297mm;  /* Exact width of A4 landscape */
+    height: 210mm; /* Exact height of A4 landscape */
+    margin: 10px auto;
     page-break-after: always;
     break-after: page;
-    background:var(--paper);
-    border:1px solid var(--hair);
-    border-radius:14px;
-    padding:16px;
-    box-shadow: 0 2px 6px #0002;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 15mm; /* Consistent inner margin */
+    position: relative;
     overflow: hidden;
   }
-  .sheet:last-child{ page-break-after: auto; }
-
-  .year{ text-align:center; font-weight:800; letter-spacing:.5px; margin: 6px 0 2px; font-size: 22px; }
-  .legend{ text-align:center; color:var(--muted); font-size: 12px; margin-bottom: 10px; }
-
-  .cover { display:grid; grid-template-columns: 1.2fr 1fr; gap:16px; align-items:center; height: calc(100% - 40px); }
-  .cover .left{ padding:16px; }
-  .title{ font-size: 42px; line-height:1.1; font-weight:900; margin: 0 0 6px; letter-spacing: .5px; }
-  .subtitle{ color:var(--muted); font-size: 16px; margin: 0 0 14px; font-weight: 700; }
-  .badges{ display:flex; gap:8px; flex-wrap:wrap }
-  .badge{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--hair); background:#fff }
-  .badge.blue{ background:#e0f2fe; border-color:#bae6fd }
-  .badge.yellow{ background:#fef3c7; border-color:#fde68a }
-  .badge.green{ background:#dcfce7; border-color:#bbf7d0 }
-  .cover .right{ display:grid; place-items:center; }
-  .playcard{ width: 420px; max-width: 100%; aspect-ratio: 4/3; border-radius:18px; border:2px dashed var(--hair); background: conic-gradient(from 30deg, #fff, #f8fbff, #fff); box-shadow:0 8px 24px #0001; padding:14px; }
-  .playgrid{ display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; }
-  .playcell{ height: 40px; border-radius:10px; background:#fff; border:1px solid var(--hair); position:relative }
-  .sticker{ position:absolute; right:6px; top:6px; width:16px; height:16px; border-radius:50%; box-shadow:0 0 0 2px #fff inset }
-  .sticker.sun{ background: radial-gradient(circle at 30% 30%, #fff8, #0000), var(--brand2) }
-  .sticker.heart{ background: radial-gradient(circle at 55% 35%, #fff8, #0000), var(--brand3) }
-  .sticker.star{ background: conic-gradient(from 20deg, #fcd34d, #f59e0b, #fde68a, #fcd34d) }
-  .cover-footer{ margin-top: 10px; font-size: 12px; color:var(--muted); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px }
-
-  .month-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 12px; border-radius:12px; background:linear-gradient(90deg,#e0f2fe,#fff); border:1px dashed var(--hair); }
-  .month-title{ display:flex; align-items:baseline; gap:10px; }
-  .month-title h2{ margin:0; font-size:26px; letter-spacing:.3px }
-  .month-title .badge{ background:#fff; border:1px solid var(--hair) }
-  .month-title .chip{ font-size:12px; color:#fff; background:var(--brand); padding:4px 8px; border-radius:999px }
-  .grid-wrap{ display:grid; grid-template-columns: 2.1fr 3fr; gap:12px; margin-top:10px; height: calc(100% - 90px); }
-  .notes{ border:2px dashed var(--hair); border-radius:12px; padding:10px; background: repeating-linear-gradient(transparent 0 28px, #00000010 28px 29px) #fff; overflow:auto }
-  .notes h3{ margin:4px 0 6px; font-size:14px; color:var(--muted); font-weight:800; text-transform:uppercase; letter-spacing:.8px }
-  .labels{ display:flex; flex-wrap:wrap; gap:6px }
-  .label{ font-size:11px; padding:6px 8px; border-radius:999px; border:1px solid var(--hair); background:#fff }
-  .label.birth{ background:#ffe8ef; border-color:#ffc2d0 }
-  .label.holiday{ background:#e6ffec; border-color:#b7f3c8 }
-  .calendar{ border:1px solid var(--hair); border-radius:12px; overflow:hidden; background:#fff; display:flex; flex-direction:column; min-height: 100%; }
-  .weekdays{ display:grid; grid-template-columns: repeat(7, 1fr); background:#f1f5f9; color:#0b1320; border-bottom:1px solid var(--hair) }
-  .weekdays div{ padding:8px 6px; text-align:center; font-weight:800; font-size:12px; text-transform:uppercase; letter-spacing:.8px }
-  .days{ display:grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: minmax(72px, 1fr); flex:1 }
-  .day{ border-right:1px solid var(--hair); border-bottom:1px solid var(--hair); padding:6px; position:relative; min-height:0 }
-  .day:nth-child(7n){ border-right:none }
-  .n{ font-weight:900; font-size:14px; opacity:.85 }
-  .dots{ position:absolute; right:6px; top:6px; display:flex; gap:4px }
-  .dot{ width:8px; height:8px; border-radius:50%; background:var(--brand) }
-  .dot.birth{ background:var(--brand3) }
-  .dot.holiday{ background:var(--brand4) }
-  .events{ margin-top:4px; display:flex; flex-direction:column; gap:4px }
-  .pill{ font-size:11px; line-height:1.25; padding:4px 6px; border-radius:8px; background:var(--highlight); border:1px solid var(--hair) }
-  .pill.birth{ background:#ffe8ef; border-color:#ffc2d0 }
-  .pill.holiday{ background:#e6ffec; border-color:#b7f3c8 }
-  .foot{ margin-top:8px; font-size:11px; color:var(--muted); display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap }
-
-  .legend-mini{ display:flex; align-items:center; gap:10px; flex-wrap:wrap }
-  .legend-mini span{ display:inline-flex; align-items:center; gap:6px }
-  .legend-mini .m{ width:10px; height:10px; border-radius:50%; background:var(--brand) }
-  .legend-mini .b{ background:var(--brand3) }
-  .legend-mini .h{ background:var(--brand4) }
-
-  @media (max-width: 900px){
-    .grid-wrap{ grid-template-columns: 1fr; height:auto }
-    .day{ min-height:64px }
-    .sheet{ width:auto; height:auto }
+  
+  .sheet:last-child {
+    page-break-after: auto;
   }
-
-  /* ——— Ajustes só para impressão ——— */
-  @media print{
-    body{ background:#fff; }
-    .toolbar, .year, .legend{ display:none !important; }
-    .sheet{
-      box-shadow: none !important;
-      border: none !important;
-      background: #fff !important;
+  
+  /* ===== COVER ===== */
+  .cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    padding: 20mm;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  }
+  
+  .title {
+    font-size: 52px;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 10px;
+    color: #0c4a6e;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .subtitle {
+    font-size: 22px;
+    color: #475569;
+    margin-bottom: 25px;
+    font-weight: 600;
+  }
+  
+  .badges {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .badge {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  
+  .badge.blue {
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+  }
+  
+  .badge.green {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+  }
+  
+  .badge.yellow {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+  }
+  
+  .cover-footer {
+    position: absolute;
+    bottom: 15mm;
+    left: 15mm;
+    right: 15mm;
+    font-size: 12px;
+    color: #64748b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* ===== MONTH PAGES ===== */
+  .month-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #e0f2fe, #f0f9ff);
+    margin-bottom: 15px;
+    border: 1px dashed #bae6fd;
+  }
+  
+  .month-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .month-title h2 {
+    margin: 0;
+    font-size: 32px;
+    color: #0c4a6e;
+  }
+  
+  .chip {
+    font-size: 14px;
+    color: #fff;
+    background: #0ea5e9;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  
+  .month-badges {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .grid-wrap {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 15px;
+    height: calc(100% - 80px);
+  }
+  
+  .notes {
+    border: 2px dashed #cbd5e1;
+    border-radius: 10px;
+    padding: 15px;
+    background: repeating-linear-gradient(transparent 0 28px, #00000008 28px 29px) #fff;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .notes h3 {
+    margin: 0 0 12px;
+    font-size: 16px;
+    color: #475569;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+  
+  .label {
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+  }
+  
+  .label.birth {
+    background: #ffe8ef;
+    border-color: #ffc2d0;
+  }
+  
+  .label.holiday {
+    background: #e6ffec;
+    border-color: #b7f3c8;
+  }
+  
+  .notes-area {
+    flex: 1;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    background: repeating-linear-gradient(transparent 0 30px, #00000008 30px 31px) #f8fafc;
+    min-height: 200px;
+  }
+  
+  .calendar {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: #f1f5f9;
+    color: #0f172a;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .weekdays div {
+    padding: 12px 6px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  
+  .days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: 1fr;
+    flex: 1;
+  }
+  
+  .day {
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 8px;
+    position: relative;
+    min-height: 0;
+  }
+  
+  .day:nth-child(7n) {
+    border-right: none;
+  }
+  
+  .n {
+    font-weight: 900;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+  
+  .dots {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    display: flex;
+    gap: 4px;
+  }
+  
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  
+  .dot.birth {
+    background: #ef4444;
+  }
+  
+  .dot.holiday {
+    background: #10b981;
+  }
+  
+  .events {
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .pill {
+    font-size: 11px;
+    line-height: 1.3;
+    padding: 4px 6px;
+    border-radius: 6px;
+    background: #e0f2fe;
+    border: 1px solid #bae6fd;
+  }
+  
+  .pill.birth {
+    background: #ffe8ef;
+    border-color: #ffc2d0;
+  }
+  
+  .pill.holiday {
+    background: #e6ffec;
+    border-color: #b7f3c8;
+  }
+  
+  .foot {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .legend-mini {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .legend-mini span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .legend-mini .m {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  
+  .legend-mini .b {
+    background: #ef4444;
+  }
+  
+  .legend-mini .h {
+    background: #10b981;
+  }
+  
+  /* ===== PRINT ===== */
+  @media print {
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+    
+    body {
+      background: #fff;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .toolbar, .hint {
+      display: none !important;
+    }
+    
+    .sheet {
+      width: 297mm;
+      height: 210mm;
+      margin: 0;
+      padding: 15mm;
+      box-shadow: none;
+      border: 1px solid #ddd;
+      border-radius: 0;
+      page-break-after: always;
+      break-after: page;
+    }
+    
+    .sheet:last-child {
+      page-break-after: avoid;
+    }
+    
+    /* Ensure colors are printed */
+    * {
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
-      margin: 0 auto !important;
     }
   }
 </style>
 </head>
 <body>
   <div class="toolbar">
-    <div class="titlebar">MY ESPECIAL CALENDAR — Preview (13 páginas A4)</div>
-    <button class="btn" onclick="window.print()">🖨️ Imprimir A4</button>
-    <div class="hint">Dica: escolha A4 • Paisagem • Margens padrão</div>
+    <div class="titlebar">MY SPECIAL CALENDAR — 13 A4 pages (1 cover + 12 months)</div>
+    <button class="btn" onclick="window.print()">🖨️ Print calendar</button>
+    <div class="hint">Settings: A4 • Landscape • Default margins</div>
   </div>
 
-  <div class="year" id="yearTitle"></div>
-  <div class="legend">English labels • 1 month per A4 (landscape) • 🇧🇷 Brazil National Holidays</div>
   <div id="root"></div>
 
 <script>
 (function(){
   'use strict';
-  // —— Settings ——
+  
+  // Settings
   const YEAR = new Date().getFullYear();
   const weekStartsOnMonday = true;
-  const monthNames = [ 'January','February','March','April','May','June','July','August','September','October','November','December' ];
-  const weekdayNames = weekStartsOnMonday ? ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const monthNames = ['January','February','March','April','May','June',
+                      'July','August','September','October','November','December'];
+  const weekdayNames = weekStartsOnMonday 
+    ? ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] 
+    : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-  // —— Data ——
+  // Brazil National Holidays
   const BR_NATIONAL_HOLIDAYS = [
-    { m:1,  d:1,  label:'New Year’s Day — 🇧🇷' },
-    { m:4,  d:21, label:'Tiradentes — 🇧🇷' },
-    { m:5,  d:1,  label:'Labor Day — 🇧🇷' },
-    { m:9,  d:7,  label:'Independence Day — 🇧🇷' },
-    { m:10, d:12, label:'Our Lady of Aparecida — 🇧🇷' },
-    { m:11, d:2,  label:'All Souls’ Day — 🇧🇷' },
-    { m:11, d:15, label:'Republic Proclamation — 🇧🇷' },
-    { m:11, d:20, label:'Black Awareness Day — 🇧🇷' },
-    { m:12, d:25, label:'Christmas — 🇧🇷' }
+    { m:1,  d:1,  label:"New Year's Day — 🇧🇷" },
+    { m:4,  d:21, label:"Tiradentes' Day — 🇧🇷" },
+    { m:5,  d:1,  label:"Labor Day — 🇧🇷" },
+    { m:9,  d:7,  label:"Brazil Independence Day — 🇧🇷" },
+    { m:10, d:12, label:"Our Lady of Aparecida — 🇧🇷" },
+    { m:11, d:2,  label:"All Souls' Day — 🇧🇷" },
+    { m:11, d:15, label:"Republic Proclamation Day — 🇧🇷" },
+    { m:11, d:20, label:"Black Awareness Day — 🇧🇷" },
+    { m:12, d:25, label:"Christmas — 🇧🇷" }
   ];
+  
+  // Birthdays
   const BIRTHDAYS = [
-    { m:6,  d:25, label:"Pedro’s Birthday 🎈" },
-    { m:11, d:26, label:"Arthur’s Birthday 🎈" },
+    { m:6,  d:25, label:"Pedro's Birthday 🎈" },
+    { m:11, d:26, label:"Arthur's Birthday 🎈" },
     { m:8,  d:4,  label:"Grandpa Paulo 🎉" },
     { m:9,  d:23, label:"Grandpa Cláudio 🎉" },
     { m:1,  d:21, label:"Grandma Rosana 🎉" },
@@ -178,119 +488,234 @@
     { m:12, d:28, label:"Grandma Sandra 🎉" }
   ];
 
-  // —— DOM refs ——
-  document.getElementById('yearTitle').textContent = YEAR;
+  // DOM refs
   const root = document.getElementById('root');
 
-  // —— Helpers ——
-  function firstWeekdayOfMonth(year, monthIdx){
-    let wd=new Date(year, monthIdx, 1).getDay();
-    return (weekStartsOnMonday? (wd+6)%7 : wd);
+  // Helpers
+  function firstWeekdayOfMonth(year, monthIdx) {
+    let wd = new Date(year, monthIdx, 1).getDay();
+    return weekStartsOnMonday ? (wd + 6) % 7 : wd;
   }
-  function daysInMonth(year, monthIdx){ return new Date(year, monthIdx+1, 0).getDate(); }
-  function byDate(list, m1to12, d){ return list.filter(x => x.m===m1to12 && x.d===d); }
+  
+  function daysInMonth(year, monthIdx) { 
+    return new Date(year, monthIdx + 1, 0).getDate(); 
+  }
+  
+  function byDate(list, m1to12, d) { 
+    return list.filter(x => x.m === m1to12 && x.d === d); 
+  }
 
-  // —— Cover ——
-  function buildCover(year){
-    const sheet=document.createElement('section'); sheet.className='sheet';
-    const wrap=document.createElement('div'); wrap.className='cover';
-    const left=document.createElement('div'); left.className='left';
-    left.innerHTML=`
-      <h1 class="title">MY ESPECIAL CALENDAR<br/>${year}</h1>
-      <p class="subtitle">Pedro Lima Stofel — Terceiro Ano</p>
+  // Build cover
+  function buildCover(year) {
+    const sheet = document.createElement('section');
+    sheet.className = 'sheet';
+    
+    const cover = document.createElement('div');
+    cover.className = 'cover';
+    
+    cover.innerHTML = `
+      <h1 class="title">MY SPECIAL CALENDAR</h1>
+      <p class="subtitle">${year} • Pedro Lima Stofel</p>
       <div class="badges">
         <span class="badge blue">Birthdays 🎈</span>
-        <span class="badge green">🇧🇷 National Holidays</span>
-        <span class="badge yellow">Notes & doodles ✏️</span>
+        <span class="badge green">Brazil National Holidays 🇧🇷</span>
+        <span class="badge yellow">Notes & Reminders ✏️</span>
       </div>
-      <ul style="margin:14px 0 0; padding-left:18px; line-height:1.5; color:var(--muted); font-size:13px">
-        <li>Weeks start on Monday (Mon–Sun).</li>
-        <li>Holidays have a green dot and a 🇧🇷 tag.</li>
-        <li>Space on the left for drawings, stickers and quick notes.</li>
-      </ul>`;
-    const right=document.createElement('div'); right.className='right';
-    const card=document.createElement('div'); card.className='playcard';
-    const grid=document.createElement('div'); grid.className='playgrid';
-    for(let i=0;i<28;i++){
-      const c=document.createElement('div'); c.className='playcell';
-      if(i%7===1){ const s=document.createElement('div'); s.className='sticker sun'; c.appendChild(s); }
-      if(i%9===0){ const s=document.createElement('div'); s.className='sticker heart'; c.appendChild(s); }
-      if(i%11===0){ const s=document.createElement('div'); s.className='sticker star'; c.appendChild(s); }
-      grid.appendChild(c);
+      <div style="max-width: 600px; text-align: left; margin-top: 20px;">
+        <ul style="line-height: 1.6; color: #475569; font-size: 16px;">
+          <li>• Weeks start on Monday (Mon–Sun)</li>
+          <li>• Holidays have a green dot and the 🇧🇷 flag</li>
+          <li>• Space for notes, drawings, and reminders</li>
+          <li>• Printed on 13 A4 landscape pages</li>
+        </ul>
+      </div>
+    `;
+    
+    const footer = document.createElement('div');
+    footer.className = 'cover-footer';
+    footer.innerHTML = `
+      <span>Personalized calendar • ${year}</span>
+      <span><b>Legend:</b> 
+        <span style="display:inline-flex;align-items:center;gap:6px">
+          <i style="width:12px;height:12px;border-radius:50%;background:#ef4444;display:inline-block"></i> Birthday
+        </span> • 
+        <span style="display:inline-flex;align-items:center;gap:6px">
+          <i style="width:12px;height:12px;border-radius:50%;background:#10b981;display:inline-block"></i> Holiday
+        </span>
+      </span>
+    `;
+    
+    sheet.appendChild(cover);
+    sheet.appendChild(footer);
+    return sheet;
+  }
+
+  // Build month page
+  function buildMonth(year, monthIdx) {
+    const sheet = document.createElement('section');
+    sheet.className = 'sheet';
+    
+    // Month header
+    const head = document.createElement('div');
+    head.className = 'month-head';
+    head.innerHTML = `
+      <div class="month-title">
+        <h2>${monthNames[monthIdx]}</h2>
+        <span class="chip">${year}</span>
+      </div>
+      <div class="month-badges">
+        <span class="badge blue">Birthday 🎈</span>
+        <span class="badge green">Holiday 🇧🇷</span>
+      </div>
+    `;
+    
+    // Main area (notes + calendar)
+    const gridWrap = document.createElement('div');
+    gridWrap.className = 'grid-wrap';
+    
+    // Notes area
+    const notes = document.createElement('aside');
+    notes.className = 'notes';
+    notes.innerHTML = `
+      <h3>Notes & Reminders</h3>
+      <div class="labels">
+        <span class="label birth">🎈 Birthdays</span>
+        <span class="label holiday">🇧🇷 Holidays</span>
+        <span class="label">✅ Tasks</span>
+        <span class="label">📸 Moments</span>
+      </div>
+      <div class="notes-area"></div>
+    `;
+    
+    // Calendar
+    const calendar = document.createElement('section');
+    calendar.className = 'calendar';
+    
+    // Weekday header
+    const weekdays = document.createElement('div');
+    weekdays.className = 'weekdays';
+    weekdays.innerHTML = weekdayNames.map(w => `<div>${w}</div>`).join('');
+    
+    // Month days
+    const days = document.createElement('div');
+    days.className = 'days';
+    
+    const firstOffset = firstWeekdayOfMonth(year, monthIdx);
+    const daysInMonthCount = daysInMonth(year, monthIdx);
+    
+    // Leading blanks
+    for (let i = 0; i < firstOffset; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'day';
+      days.appendChild(empty);
     }
-    card.appendChild(grid); right.appendChild(card);
-    wrap.appendChild(left); wrap.appendChild(right);
-    const foot=document.createElement('div'); foot.className='cover-footer';
-    foot.innerHTML=`<span>Designed for printing • A4 landscape • ${year}</span>
-      <span><b>Legend:</b> <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:12px;height:12px;border-radius:50%;background:var(--brand3);display:inline-block"></i> Birthday</span> · <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:12px;height:12px;border-radius:50%;background:var(--brand4);display:inline-block"></i> 🇧🇷 Holiday</span></span>`;
-    sheet.appendChild(wrap); sheet.appendChild(foot); return sheet;
-  }
-
-  // —— Month ——
-  function buildMonth(year, monthIdx){
-    const sheet=document.createElement('section'); sheet.className='sheet';
-    const head=document.createElement('div'); head.className='month-head';
-    head.innerHTML=`<div class="month-title"><h2>${monthNames[monthIdx]}</h2><span class="chip">${year}</span></div>
-      <div class="badges"><span class="badge">Birthday 🎈</span><span class="badge">🇧🇷 Holiday</span></div>`;
-    const wrap=document.createElement('div'); wrap.className='grid-wrap';
-    const notes=document.createElement('aside'); notes.className='notes';
-    notes.innerHTML=`<h3>Notes & doodles</h3>
-      <div class="labels"><span class="label birth">🎈 Birthdays</span><span class="label holiday">🇧🇷 Holidays</span><span class="label">✅ Achievements</span><span class="label">📸 Memories</span></div>
-      <div style="height: 100%; min-height: 310px; margin-top:10px; background: repeating-linear-gradient(transparent 0 30px, #00000010 30px 31px) #fff; border:1px dashed var(--hair); border-radius:10px;"></div>`;
-    const cal=document.createElement('section'); cal.className='calendar';
-    const wd=document.createElement('div'); wd.className='weekdays'; wd.innerHTML=weekdayNames.map(w=>`<div>${w}</div>`).join('');
-    const days=document.createElement('div'); days.className='days';
-
-    const firstOffset=firstWeekdayOfMonth(year, monthIdx); const dim=daysInMonth(year, monthIdx);
-    for(let i=0;i<firstOffset;i++){ const empty=document.createElement('div'); empty.className='day'; days.appendChild(empty); }
-    for(let d=1; d<=dim; d++){
-      const cell=document.createElement('div'); cell.className='day';
-      const pins=document.createElement('div'); pins.className='dots';
-      const birth=byDate(BIRTHDAYS, monthIdx+1, d); const hols=byDate(BR_NATIONAL_HOLIDAYS, monthIdx+1, d);
-      if(birth.length){ const dot=document.createElement('span'); dot.className='dot birth'; pins.appendChild(dot); }
-      if(hols.length){ const dot=document.createElement('span'); dot.className='dot holiday'; pins.appendChild(dot); }
-      const num=document.createElement('div'); num.className='n'; num.textContent=d;
-      const list=document.createElement('div'); list.className='events';
-      birth.forEach(b=>{ const p=document.createElement('div'); p.className='pill birth'; p.textContent=b.label; list.appendChild(p); });
-      hols.forEach(h=>{ const p=document.createElement('div'); p.className='pill holiday'; p.textContent=h.label; list.appendChild(p); });
-      cell.appendChild(pins); cell.appendChild(num); cell.appendChild(list); days.appendChild(cell);
+    
+    // Real days
+    for (let d = 1; d <= daysInMonthCount; d++) {
+      const cell = document.createElement('div');
+      cell.className = 'day';
+      
+      // Dots
+      const pins = document.createElement('div');
+      pins.className = 'dots';
+      
+      const birthdays = byDate(BIRTHDAYS, monthIdx + 1, d);
+      const holidays = byDate(BR_NATIONAL_HOLIDAYS, monthIdx + 1, d);
+      
+      if (birthdays.length) {
+        const dot = document.createElement('span');
+        dot.className = 'dot birth';
+        pins.appendChild(dot);
+      }
+      
+      if (holidays.length) {
+        const dot = document.createElement('span');
+        dot.className = 'dot holiday';
+        pins.appendChild(dot);
+      }
+      
+      // Day number
+      const num = document.createElement('div');
+      num.className = 'n';
+      num.textContent = d;
+      
+      // Event pills
+      const eventsList = document.createElement('div');
+      eventsList.className = 'events';
+      
+      birthdays.forEach(b => {
+        const pill = document.createElement('div');
+        pill.className = 'pill birth';
+        pill.textContent = b.label;
+        eventsList.appendChild(pill);
+      });
+      
+      holidays.forEach(h => {
+        const pill = document.createElement('div');
+        pill.className = 'pill holiday';
+        pill.textContent = h.label;
+        eventsList.appendChild(pill);
+      });
+      
+      cell.appendChild(pins);
+      cell.appendChild(num);
+      cell.appendChild(eventsList);
+      days.appendChild(cell);
     }
-
-    cal.appendChild(wd); cal.appendChild(days); wrap.appendChild(notes); wrap.appendChild(cal);
-    const foot=document.createElement('div'); foot.className='foot';
-    foot.innerHTML=`<div class="legend-mini"><span><i class="m b"></i> Birthday</span><span><i class="m h"></i> 🇧🇷 Holiday</span></div><div>Print: A4 landscape • ${monthNames[monthIdx]} ${year}</div>`;
-    sheet.appendChild(head); sheet.appendChild(wrap); sheet.appendChild(foot); return sheet;
+    
+    calendar.appendChild(weekdays);
+    calendar.appendChild(days);
+    
+    gridWrap.appendChild(notes);
+    gridWrap.appendChild(calendar);
+    
+    // Footer
+    const foot = document.createElement('div');
+    foot.className = 'foot';
+    foot.innerHTML = `
+      <div class="legend-mini">
+        <span><i class="m b"></i> Birthday</span>
+        <span><i class="m h"></i> Holiday</span>
+      </div>
+      <div>${monthNames[monthIdx]} ${year} • Page ${monthIdx + 2} of 13</div>
+    `;
+    
+    sheet.appendChild(head);
+    sheet.appendChild(gridWrap);
+    sheet.appendChild(foot);
+    
+    return sheet;
   }
 
-  // —— Render ——
-  const now=new Date();
-  const cover=buildCover(YEAR);
-  const rootEl = document.getElementById('root');
-  rootEl.appendChild(cover);
-  for(let m=0;m<12;m++){
-    const sheet=buildMonth(YEAR,m);
-    if(m===now.getMonth()) sheet.setAttribute('id','this-month');
-    rootEl.appendChild(sheet);
+  // Render calendar
+  function renderCalendar() {
+    // Cover
+    root.appendChild(buildCover(YEAR));
+    
+    // Months
+    for (let m = 0; m < 12; m++) {
+      const monthSheet = buildMonth(YEAR, m);
+      
+      // Highlight current month
+      if (m === new Date().getMonth()) {
+        monthSheet.style.border = '2px solid #0ea5e9';
+        monthSheet.setAttribute('id', 'current-month');
+      }
+      
+      root.appendChild(monthSheet);
+    }
   }
-  setTimeout(()=>{ const el=document.getElementById('this-month'); if(el) el.scrollIntoView({behavior:'smooth', block:'start'}); }, 50);
 
-  // —— Self-tests (console) ——
-  (function runSelfTests(){
-    console.groupCollapsed('[MY ESPECIAL CALENDAR] Self-tests');
-    try{
-      const sheets = document.querySelectorAll('.sheet');
-      console.assert(sheets.length === 13, `Expected 13 sheets (1 cover + 12 months), got ${sheets.length}`);
-      const pills = Array.from(document.querySelectorAll('.pill'));
-      const hasMariana = pills.some(p => /Aunt\s+Mariana/.test(p.textContent));
-      console.assert(hasMariana, 'Should contain Aunt Mariana on Feb 1');
-      const hasIndependence = pills.some(p => /Independence Day/.test(p.textContent));
-      console.assert(hasIndependence, 'Should include 🇧🇷 Independence Day (Sep 7)');
-      const thisMonth = document.querySelectorAll('#this-month');
-      console.assert(thisMonth.length === 1, `Expected exactly one #this-month, got ${thisMonth.length}`);
-      console.log('All checks passed.');
-    }catch(err){ console.error('Self-test error:', err); }
-    console.groupEnd();
-  })();
+  // Init
+  renderCalendar();
+
+  // Smooth scroll to current month (small delay)
+  setTimeout(() => {
+    const currentMonth = document.getElementById('current-month');
+    if (currentMonth) {
+      currentMonth.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 500);
 })();
 </script>
 </body>
