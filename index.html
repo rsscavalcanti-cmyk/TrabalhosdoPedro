@@ -5,35 +5,52 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>MY ESPECIAL CALENDAR — A4 Landscape (English) + Brazil National Holidays</title>
 <style>
-  /* —— Base & Print —— */
+  /* ——— Paginação e tamanho exatos ——— */
   @page { size: A4 landscape; margin: 12mm; }
   html, body { height: 100%; margin: 0; }
-  :root{ --ink:#0f172a; --muted:#475569; --hair:#00000020; --brand:#0ea5e9; --brand2:#f59e0b; --brand3:#ef4444; --brand4:#10b981; --paper:#fff; --bg:#f6fbff; --highlight:#dcf3ff; }
+  :root{
+    --ink:#0f172a; --muted:#475569; --hair:#00000020;
+    --brand:#0ea5e9; --brand2:#f59e0b; --brand3:#ef4444; --brand4:#10b981;
+    --paper:#fff; --bg:#f6fbff; --highlight:#dcf3ff; --note:#fde68a;
+  }
   *{ box-sizing:border-box }
-  body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif; color:var(--ink); background:var(--bg); print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  body{
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+  }
 
-  .print-bar{ position:sticky; top:0; display:flex; justify-content:center; gap:8px; padding:8px; background:#ffffffcc; backdrop-filter:saturate(1.2) blur(6px); border-bottom:1px solid var(--hair); z-index:10 }
-  .print-btn{ cursor:pointer; font-weight:700; border:1px solid var(--hair); border-radius:999px; padding:8px 12px; background:#fff }
-
-  .sheet{ break-after: page; background:var(--paper); border:1px solid var(--hair); border-radius:14px; padding:16px; box-shadow: 0 2px 6px #0002; margin:8px }
-  .sheet:last-of-type{ break-after: auto }
+  /* Cada folha ocupa exatamente 1 página A4 (paisagem, margens já definidas no @page) */
+  .sheet{
+    width: 273mm;          /* 297mm - (12mm * 2) */
+    height: 186mm;         /* 210mm - (12mm * 2) */
+    margin: 0 auto;
+    page-break-after: always;
+    break-after: page;
+    background:var(--paper);
+    border:1px solid var(--hair);
+    border-radius:14px;
+    padding:16px;
+    box-shadow: 0 2px 6px #0002;
+    overflow: hidden;      /* evita transbordo para outra página */
+  }
+  .sheet:last-child{ page-break-after: auto; }
 
   .year{ text-align:center; font-weight:800; letter-spacing:.5px; margin: 6px 0 2px; font-size: 22px; }
   .legend{ text-align:center; color:var(--muted); font-size: 12px; margin-bottom: 10px; }
 
-  /* —— Cover —— */
-  .cover { display:grid; grid-template-columns: 1.2fr 1fr; gap:16px; align-items:center; min-height: 530px; }
+  .cover { display:grid; grid-template-columns: 1.2fr 1fr; gap:16px; align-items:center; height: calc(100% - 40px); }
   .cover .left{ padding:16px; }
-  .title{ font-size: 42px; line-height:1.1; font-weight:900; margin: 0 0 6px; letter-spacing:.5px }
-  .subtitle{ color:var(--muted); font-size: 16px; margin: 0 0 14px; font-weight:700 }
+  .title{ font-size: 42px; line-height:1.1; font-weight:900; margin: 0 0 6px; letter-spacing: .5px; }
+  .subtitle{ color:var(--muted); font-size: 16px; margin: 0 0 14px; font-weight: 700; }
   .badges{ display:flex; gap:8px; flex-wrap:wrap }
   .badge{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--hair); background:#fff }
   .badge.blue{ background:#e0f2fe; border-color:#bae6fd }
   .badge.yellow{ background:#fef3c7; border-color:#fde68a }
   .badge.green{ background:#dcfce7; border-color:#bbf7d0 }
-  .cover .right{ display:grid; place-items:center }
-  .playcard{ width: 420px; max-width: 100%; aspect-ratio: 4/3; border-radius:18px; border:2px dashed var(--hair); background: conic-gradient(from 30deg, #fff, #f8fbff, #fff); box-shadow:0 8px 24px #0001; padding:14px }
-  .playgrid{ display:grid; grid-template-columns: repeat(7, 1fr); gap:6px }
+  .cover .right{ display:grid; place-items:center; }
+  .playcard{ width: 420px; max-width: 100%; aspect-ratio: 4/3; border-radius:18px; border:2px dashed var(--hair); background: conic-gradient(from 30deg, #fff, #f8fbff, #fff); box-shadow:0 8px 24px #0001; padding:14px; }
+  .playgrid{ display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; }
   .playcell{ height: 40px; border-radius:10px; background:#fff; border:1px solid var(--hair); position:relative }
   .sticker{ position:absolute; right:6px; top:6px; width:16px; height:16px; border-radius:50%; box-shadow:0 0 0 2px #fff inset }
   .sticker.sun{ background: radial-gradient(circle at 30% 30%, #fff8, #0000), var(--brand2) }
@@ -41,27 +58,23 @@
   .sticker.star{ background: conic-gradient(from 20deg, #fcd34d, #f59e0b, #fde68a, #fcd34d) }
   .cover-footer{ margin-top: 10px; font-size: 12px; color:var(--muted); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px }
 
-  /* —— Month —— */
-  .month-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 12px; border-radius:12px; background:linear-gradient(90deg,#e0f2fe,#fff); border:1px dashed var(--hair) }
-  .month-title{ display:flex; align-items:baseline; gap:10px }
+  .month-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 12px; border-radius:12px; background:linear-gradient(90deg,#e0f2fe,#fff); border:1px dashed var(--hair); }
+  .month-title{ display:flex; align-items:baseline; gap:10px; }
   .month-title h2{ margin:0; font-size:26px; letter-spacing:.3px }
   .month-title .badge{ background:#fff; border:1px solid var(--hair) }
   .month-title .chip{ font-size:12px; color:#fff; background:var(--brand); padding:4px 8px; border-radius:999px }
-
-  .grid-wrap{ display:grid; grid-template-columns: 2.1fr 3fr; gap:12px; margin-top:10px }
-  .notes{ border:2px dashed var(--hair); border-radius:12px; padding:10px; background: repeating-linear-gradient(transparent 0 28px, #00000010 28px 29px) #fff }
+  .grid-wrap{ display:grid; grid-template-columns: 2.1fr 3fr; gap:12px; margin-top:10px; height: calc(100% - 90px); }
+  .notes{ border:2px dashed var(--hair); border-radius:12px; padding:10px; background: repeating-linear-gradient(transparent 0 28px, #00000010 28px 29px) #fff; overflow:auto }
   .notes h3{ margin:4px 0 6px; font-size:14px; color:var(--muted); font-weight:800; text-transform:uppercase; letter-spacing:.8px }
   .labels{ display:flex; flex-wrap:wrap; gap:6px }
   .label{ font-size:11px; padding:6px 8px; border-radius:999px; border:1px solid var(--hair); background:#fff }
   .label.birth{ background:#ffe8ef; border-color:#ffc2d0 }
   .label.holiday{ background:#e6ffec; border-color:#b7f3c8 }
-
-  .calendar{ border:1px solid var(--hair); border-radius:12px; overflow:hidden; background:#fff }
+  .calendar{ border:1px solid var(--hair); border-radius:12px; overflow:hidden; background:#fff; display:flex; flex-direction:column; min-height: 100%; }
   .weekdays{ display:grid; grid-template-columns: repeat(7, 1fr); background:#f1f5f9; color:#0b1320; border-bottom:1px solid var(--hair) }
   .weekdays div{ padding:8px 6px; text-align:center; font-weight:800; font-size:12px; text-transform:uppercase; letter-spacing:.8px }
-
-  .days{ display:grid; grid-template-columns: repeat(7, 1fr) }
-  .day{ min-height:72px; border-right:1px solid var(--hair); border-bottom:1px solid var(--hair); padding:6px; position:relative; break-inside: avoid }
+  .days{ display:grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: minmax(72px, 1fr); flex:1 }
+  .day{ border-right:1px solid var(--hair); border-bottom:1px solid var(--hair); padding:6px; position:relative; min-height:0 }
   .day:nth-child(7n){ border-right:none }
   .n{ font-weight:900; font-size:14px; opacity:.85 }
   .dots{ position:absolute; right:6px; top:6px; display:flex; gap:4px }
@@ -72,34 +85,45 @@
   .pill{ font-size:11px; line-height:1.25; padding:4px 6px; border-radius:8px; background:var(--highlight); border:1px solid var(--hair) }
   .pill.birth{ background:#ffe8ef; border-color:#ffc2d0 }
   .pill.holiday{ background:#e6ffec; border-color:#b7f3c8 }
-
   .foot{ margin-top:8px; font-size:11px; color:var(--muted); display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap }
+
   .legend-mini{ display:flex; align-items:center; gap:10px; flex-wrap:wrap }
   .legend-mini span{ display:inline-flex; align-items:center; gap:6px }
   .legend-mini .m{ width:10px; height:10px; border-radius:50%; background:var(--brand) }
   .legend-mini .b{ background:var(--brand3) }
   .legend-mini .h{ background:var(--brand4) }
 
-  @media (max-width: 900px){ .grid-wrap{ grid-template-columns: 1fr } .day{ min-height:64px } }
+  @media (max-width: 900px){
+    .grid-wrap{ grid-template-columns: 1fr; height:auto }
+    .day{ min-height:64px }
+    .sheet{ width:auto; height:auto }
+  }
+
+  /* ——— Ajustes só para impressão ——— */
   @media print{
-    body{ background:#fff }
-    .print-bar{ display:none !important }
-    .sheet{ margin:0; border:none; border-radius:0; box-shadow:none }
-    .year,.legend{ display:none }
+    body{ background:#fff; }
+    .year, .legend{ display:none !important; }           /* evita criar página extra */
+    .sheet{
+      box-shadow: none !important;
+      border: none !important;
+      background: #fff !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
   }
 </style>
 </head>
 <body>
-  <div class="print-bar"><button class="print-btn" onclick="window.print()">Print this calendar</button></div>
   <div class="year" id="yearTitle"></div>
   <div class="legend">MY ESPECIAL CALENDAR — English labels • 1 month per A4 (landscape) • 🇧🇷 Brazil National Holidays included</div>
   <div id="root"></div>
+
 <script>
 (function(){
   'use strict';
   // —— Settings ——
   const YEAR = new Date().getFullYear();
-  const weekStartsOnMonday = true; // Mon–Sun layout
+  const weekStartsOnMonday = true;
   const monthNames = [ 'January','February','March','April','May','June','July','August','September','October','November','December' ];
   const weekdayNames = weekStartsOnMonday ? ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
@@ -135,7 +159,10 @@
   const root = document.getElementById('root');
 
   // —— Helpers ——
-  function firstWeekdayOfMonth(year, monthIdx){ let wd=new Date(year, monthIdx, 1).getDay(); return (weekStartsOnMonday? (wd+6)%7 : wd); }
+  function firstWeekdayOfMonth(year, monthIdx){
+    let wd=new Date(year, monthIdx, 1).getDay();
+    return (weekStartsOnMonday? (wd+6)%7 : wd);
+  }
   function daysInMonth(year, monthIdx){ return new Date(year, monthIdx+1, 0).getDate(); }
   function byDate(list, m1to12, d){ return list.filter(x => x.m===m1to12 && x.d===d); }
 
@@ -185,7 +212,7 @@
     const notes=document.createElement('aside'); notes.className='notes';
     notes.innerHTML=`<h3>Notes & doodles</h3>
       <div class="labels"><span class="label birth">🎈 Birthdays</span><span class="label holiday">🇧🇷 Holidays</span><span class="label">✅ Achievements</span><span class="label">📸 Memories</span></div>
-      <div style="height: 310px; margin-top:10px; background: repeating-linear-gradient(transparent 0 30px, #00000010 30px 31px) #fff; border:1px dashed var(--hair); border-radius:10px;"></div>`;
+      <div style="height: 100%; min-height: 310px; margin-top:10px; background: repeating-linear-gradient(transparent 0 30px, #00000010 30px 31px) #fff; border:1px dashed var(--hair); border-radius:10px;"></div>`;
     const cal=document.createElement('section'); cal.className='calendar';
     const wd=document.createElement('div'); wd.className='weekdays'; wd.innerHTML=weekdayNames.map(w=>`<div>${w}</div>`).join('');
     const days=document.createElement('div'); days.className='days';
@@ -213,7 +240,8 @@
 
   // —— Render ——
   const now=new Date();
-  root.appendChild(buildCover(YEAR));
+  const cover=buildCover(YEAR);
+  root.appendChild(cover);
   for(let m=0;m<12;m++){
     const sheet=buildMonth(YEAR,m);
     if(m===now.getMonth()) sheet.setAttribute('id','this-month');
@@ -233,11 +261,8 @@
       console.assert(hasMariana, 'Should contain Aunt Mariana on Feb 1');
       const hasIndependence = pills.some(p => /Independence Day/.test(p.textContent));
       console.assert(hasIndependence, 'Should include 🇧🇷 Independence Day (Sep 7)');
-      const anyWeek = document.querySelector('.weekdays');
-      if(anyWeek){
-        const labels = Array.from(anyWeek.children).map(x=>x.textContent.trim());
-        console.assert(labels[0]==='Mon' && labels[6]==='Sun', 'Week must be Mon..Sun');
-      }
+      const thisMonth = document.querySelectorAll('#this-month');
+      console.assert(thisMonth.length === 1, `Expected exactly one #this-month, got ${thisMonth.length}`);
       console.log('All checks passed.');
     }catch(err){ console.error('Self-test error:', err); }
     console.groupEnd();
@@ -246,3 +271,4 @@
 </script>
 </body>
 </html>
+
