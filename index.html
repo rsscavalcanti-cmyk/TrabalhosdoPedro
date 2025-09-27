@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MY ESPECIAL CALENDAR — A4 Landscape (English) + Brazil National Holidays</title>
+<title>MY ESPECIAL CALENDAR — A4 Landscape + Print Button</title>
 <style>
   /* ——— Paginação e tamanho exatos ——— */
   @page { size: A4 landscape; margin: 12mm; }
@@ -20,11 +20,28 @@
     background:var(--bg);
   }
 
-  /* Cada folha ocupa exatamente 1 página A4 (paisagem, margens já definidas no @page) */
+  /* Barra de ações (fica fora da impressão) */
+  .toolbar{
+    position: sticky; top: 0; z-index: 9999;
+    display:flex; align-items:center; gap:8px;
+    padding:10px 12px; background:#fff; border-bottom:1px solid #e5e7eb;
+    box-shadow:0 2px 8px #0001;
+  }
+  .toolbar .titlebar{ font-weight:800; letter-spacing:.3px; margin-right:auto }
+  .btn{
+    appearance:none; border:none; cursor:pointer; border-radius:999px;
+    padding:10px 14px; font-weight:700; letter-spacing:.2px;
+    background:linear-gradient(90deg,#0284c7,#0ea5e9); color:#fff;
+    box-shadow:0 2px 6px #0002;
+  }
+  .btn:active{ transform: translateY(1px) }
+  .hint{ font-size:12px; color:var(--muted) }
+
+  /* Cada folha ocupa exatamente 1 página A4 (paisagem) */
   .sheet{
     width: 273mm;          /* 297mm - (12mm * 2) */
     height: 186mm;         /* 210mm - (12mm * 2) */
-    margin: 0 auto;
+    margin: 12px auto;
     page-break-after: always;
     break-after: page;
     background:var(--paper);
@@ -32,7 +49,7 @@
     border-radius:14px;
     padding:16px;
     box-shadow: 0 2px 6px #0002;
-    overflow: hidden;      /* evita transbordo para outra página */
+    overflow: hidden;
   }
   .sheet:last-child{ page-break-after: auto; }
 
@@ -102,20 +119,27 @@
   /* ——— Ajustes só para impressão ——— */
   @media print{
     body{ background:#fff; }
-    .year, .legend{ display:none !important; }           /* evita criar página extra */
+    .toolbar, .year, .legend{ display:none !important; }
     .sheet{
       box-shadow: none !important;
       border: none !important;
       background: #fff !important;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
+      margin: 0 auto !important;
     }
   }
 </style>
 </head>
 <body>
+  <div class="toolbar">
+    <div class="titlebar">MY ESPECIAL CALENDAR — Preview (13 páginas A4)</div>
+    <button class="btn" onclick="window.print()">🖨️ Imprimir A4</button>
+    <div class="hint">Dica: escolha A4 • Paisagem • Margens padrão</div>
+  </div>
+
   <div class="year" id="yearTitle"></div>
-  <div class="legend">MY ESPECIAL CALENDAR — English labels • 1 month per A4 (landscape) • 🇧🇷 Brazil National Holidays included</div>
+  <div class="legend">English labels • 1 month per A4 (landscape) • 🇧🇷 Brazil National Holidays</div>
   <div id="root"></div>
 
 <script>
@@ -241,19 +265,19 @@
   // —— Render ——
   const now=new Date();
   const cover=buildCover(YEAR);
-  root.appendChild(cover);
+  const rootEl = document.getElementById('root');
+  rootEl.appendChild(cover);
   for(let m=0;m<12;m++){
     const sheet=buildMonth(YEAR,m);
     if(m===now.getMonth()) sheet.setAttribute('id','this-month');
-    root.appendChild(sheet);
+    rootEl.appendChild(sheet);
   }
-  setTimeout(()=>{ const el=document.getElementById('this-month'); if(el) el.scrollIntoView({behavior:'smooth', block:'start'}); }, 10);
+  setTimeout(()=>{ const el=document.getElementById('this-month'); if(el) el.scrollIntoView({behavior:'smooth', block:'start'}); }, 50);
 
   // —— Self-tests (console) ——
   (function runSelfTests(){
     console.groupCollapsed('[MY ESPECIAL CALENDAR] Self-tests');
     try{
-      console.assert(root === document.getElementById('root'), 'Root element reference should match');
       const sheets = document.querySelectorAll('.sheet');
       console.assert(sheets.length === 13, `Expected 13 sheets (1 cover + 12 months), got ${sheets.length}`);
       const pills = Array.from(document.querySelectorAll('.pill'));
@@ -271,4 +295,3 @@
 </script>
 </body>
 </html>
-
